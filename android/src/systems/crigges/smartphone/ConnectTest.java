@@ -31,15 +31,16 @@ public class ConnectTest{
 	private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
 	// Insert your server's MAC address
-	private static String address = "00:00:00:00:00:00";
+	private static String address = "E4:B3:18:44:8D:AF";
 
 	public ConnectTest(AndroidApplication app) {
 		this.app = app;
 		btAdapter = BluetoothAdapter.getDefaultAdapter();
 		checkBTState();
+		onResume();
 	}
 
-	public void onResume(AndroidApplication app) {
+	public void onResume() {
 		
 		// Set up a pointer to the remote node using it's address.
 		for(BluetoothDevice d : btAdapter.getBondedDevices()){
