@@ -1,10 +1,14 @@
 package systems.crigges.smartphone;
 
-import com.badlogic.gdx.scenes.scene2d.ui.List;
+import java.util.List;
 
 public interface ClientUI {
 	
-	public void setStatus();
+	public void log(String s);
+	
+	public void setStatus(Status s);
+	
+	public void setAdapterAvailable(boolean available);
 	
 	public void showAvailableServers(List<String> names, List<String> address);
 	
