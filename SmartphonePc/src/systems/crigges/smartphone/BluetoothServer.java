@@ -11,10 +11,12 @@ import java.io.PrintWriter;
 
 import javax.bluetooth.*;
 import javax.microedition.io.*;
+import javax.sound.sampled.LineUnavailableException;
 
 public class BluetoothServer implements Server {
 	private ServerUI ui;
 	private Thread serverThread;
+	private boolean running = false;
 
 	public BluetoothServer(ServerUI ui) {
 		this.ui = ui;
@@ -22,6 +24,13 @@ public class BluetoothServer implements Server {
 		LocalDevice localDevice = null;
 		try {
 			localDevice = LocalDevice.getLocalDevice();
+			if(localDevice.getFriendlyName() == null){
+				ui.log("Device named with address: "
+						+ localDevice.getBluetoothAddress() + " was found. But it is not useable!");
+				ui.setStatus(Status.Pending);
+				ui.setDeviceStatus(false, null, null);
+				return;
+			}
 			ui.log("Device named " + localDevice.getFriendlyName() + " with address: "
 					+ localDevice.getBluetoothAddress() + " was found.");
 			ui.setDeviceStatus(true, localDevice.getFriendlyName(), localDevice.getBluetoothAddress());
@@ -29,10 +38,12 @@ public class BluetoothServer implements Server {
 		} catch (BluetoothStateException e) {
 			ui.log("No compatible device was found, please check if the adapter is enabeld and proper drivers are installed.");
 			ui.setDeviceStatus(false, null, null);
+			ui.setStatus(Status.Pending);
 		}
 	}
 
 	public void startServer() {
+		running = true;
 		serverThread = Thread.currentThread();
 		ui.setStatus(Status.Running);
 		ui.log("Starting Server");
@@ -92,18 +103,28 @@ public class BluetoothServer implements Server {
 			ui.setStatus(Status.Ready);
 		}
 		try {
+			PCMPlayback playback = new PCMPlayback();
 			while (true) {
 				short[] pcmData = (short[]) objIn.readObject();
+				
 			}
-		} catch (ClassNotFoundException | IOException e) {
-			
+		} catch (ClassNotFoundException | IOException | LineUnavailableException e) {
+			ui.log("Could not playback sound:\n" + e.getMessage());
+			ui.log("Server was stopped.");
+			ui.setStatus(Status.Ready);
 		}
 	}
 
 	@Override
 	public void stopServer() {
+		if(!running){
+			ui.setStatus(Status.Pending);
+			return;
+		}
+		running = false;
 		ui.log("Server was shutdown.");
-		ui.setStatus(Status.Ready);
+		ui.setDeviceStatus(false, null, null);
+		ui.setStatus(Status.Pending);
 		serverThread.interrupt();
 	}
 }
