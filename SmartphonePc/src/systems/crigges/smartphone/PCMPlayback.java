@@ -24,13 +24,8 @@ public class PCMPlayback {
 		line.start();
 	}
 	
-	public void play(short[] pcmRaw){
-		ByteBuffer byteBuf = ByteBuffer.allocate(pcmRaw.length * 2);
-		for(short s : pcmRaw) {
-		    byteBuf.putShort(s);
-		}
-		byte[] data = byteBuf.array();
-		line.write(data, 0, data.length);
+	public void play(byte[] pcmRaw){
+		line.write(pcmRaw, 0, pcmRaw.length);
 	}
 
 	public static void main(String[] args) {

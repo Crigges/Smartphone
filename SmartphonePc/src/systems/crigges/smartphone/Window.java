@@ -17,16 +17,20 @@ import java.awt.Component;
 import javax.swing.Box;
 import java.awt.Dimension;
 import javax.swing.border.TitledBorder;
+import javax.swing.text.NumberFormatter;
 import javax.swing.border.LineBorder;
 import java.awt.Color;
 import javax.swing.border.BevelBorder;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JCheckBox;
+import javax.swing.JFormattedTextField;
 import javax.swing.JRadioButton;
 import javax.swing.ButtonGroup;
 import javax.swing.JTextField;
 import java.awt.event.ActionListener;
+import java.net.SocketImpl;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.awt.event.ActionEvent;
@@ -104,6 +108,7 @@ public class Window implements ServerUI {
 		menuBar.add(menu);
 
 		btnStart = new JButton("Start");
+		btnStart.setEnabled(false);
 		btnStart.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				settingsPanel.setEnabled(false);
@@ -120,17 +125,18 @@ public class Window implements ServerUI {
 				nameLabel.setEnabled(false);
 				portLabel.setEnabled(false);
 				new Thread(new Runnable() {
-					
+
 					@Override
 					public void run() {
 						server.startServer();
 					}
 				}).start();
-				
+
 			}
 		});
 
 		btnStop = new JButton("Stop");
+		btnStop.setEnabled(false);
 		btnStop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				settingsPanel.setEnabled(true);
@@ -188,11 +194,20 @@ public class Window implements ServerUI {
 		chckbxUseBluetooth = new JCheckBox("Use Bluetooth");
 		chckbxUseBluetooth.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (chckbxUseBluetooth.isSelected() && chckbxUseWirelessLan.isSelected()) {
+				boolean bt = chckbxUseBluetooth.isSelected();
+				boolean wlan = chckbxUseWirelessLan.isSelected();
+				if (bt && wlan) {
 					chckbxUseWirelessLan.setSelected(false);
 				}
-				if (chckbxUseBluetooth.isSelected()) {
+				if (server != null) {
+					server.stopServer();
+					chckbxUseBluetooth.setSelected(bt);
+				}
+				if (bt) {
 					server = new BluetoothServer(Window.this);
+				} else {
+					server.stopServer();
+					server = null;
 				}
 			}
 		});
@@ -200,8 +215,20 @@ public class Window implements ServerUI {
 		chckbxUseWirelessLan = new JCheckBox("Use Wireless LAN");
 		chckbxUseWirelessLan.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (chckbxUseBluetooth.isSelected() && chckbxUseWirelessLan.isSelected()) {
+				boolean bt = chckbxUseBluetooth.isSelected();
+				boolean wlan = chckbxUseWirelessLan.isSelected();
+				if (bt && wlan) {
 					chckbxUseBluetooth.setSelected(false);
+				}
+				if (server != null) {
+					server.stopServer();
+					chckbxUseWirelessLan.setSelected(wlan);
+				}
+				if (wlan) {
+					server = new TCPServer(Window.this);
+				} else {
+					server.stopServer();
+					server = null;
 				}
 			}
 		});
@@ -224,7 +251,12 @@ public class Window implements ServerUI {
 
 		wlanIpStatus = new JLabel("Unknown");
 
-		wlanPortStatus = new JTextField();
+		NumberFormat format = NumberFormat.getInstance();
+		format.setGroupingUsed(false);
+		NumberFormatter formatter = new NumberFormatter(format);
+		formatter.setAllowsInvalid(false);
+		formatter.setMaximum(50000);
+		wlanPortStatus = new JFormattedTextField(formatter);
 		wlanPortStatus.setText("22223");
 		wlanPortStatus.setColumns(10);
 		GroupLayout gl_settingsPanel = new GroupLayout(settingsPanel);
@@ -315,6 +347,8 @@ public class Window implements ServerUI {
 		case Pending:
 			btnStart.setEnabled(false);
 			btnStop.setEnabled(false);
+			chckbxUseBluetooth.setSelected(false);
+			chckbxUseWirelessLan.setSelected(false);
 			currentStatusLabel.setText("Settings pending");
 			break;
 		case Ready:
@@ -330,5 +364,15 @@ public class Window implements ServerUI {
 		default:
 			break;
 		}
+	}
+
+	@Override
+	public int getPort() {
+		return Integer.parseInt(wlanPortStatus.getText());
+	}
+
+	@Override
+	public void displayIP(String ip) {
+		wlanIpStatus.setText(ip);
 	}
 }
