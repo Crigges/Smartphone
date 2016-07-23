@@ -6,7 +6,7 @@ public interface Client {
 	
 	public void stopClient();
 	
-	public void connectToClient(String address);
+	public void connectToServer(String address);
 	
 	public void disconnect();
 

@@ -122,7 +122,7 @@ public class BluetoothClient implements Client {
 	}
 
 	@Override
-	public void connectToClient(String address) {
+	public void connectToServer(String address) {
 		Gdx.app.postRunnable(new ConnectionTask(address));
 	}
 	

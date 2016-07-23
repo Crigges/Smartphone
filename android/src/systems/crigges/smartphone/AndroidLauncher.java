@@ -11,6 +11,7 @@ public class AndroidLauncher extends AndroidApplication {
 		super.onCreate(savedInstanceState);
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
 		//new ConnectTest(this);
+		//newMainFrame(this)
 		initialize(new MainFrame(), config);
 		
 	}
