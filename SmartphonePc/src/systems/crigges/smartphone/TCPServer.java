@@ -44,6 +44,7 @@ public class TCPServer implements Server {
 		}
 		ui.displayIP(hostAddress.getHostAddress());
 		ui.log("Socket created successfuly");
+		ui.setStatus(Status.Ready);
 	}
 
 	public void startServer() {
@@ -59,6 +60,7 @@ public class TCPServer implements Server {
 
 		@Override
 		public void run() {
+			ui.log("Waiting for clients to connect...");
 			try {
 				client = socket.accept();
 			} catch (IOException e) {
