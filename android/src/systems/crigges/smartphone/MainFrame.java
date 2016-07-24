@@ -3,6 +3,7 @@ package systems.crigges.smartphone;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.AudioRecorder;
+import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -26,6 +27,7 @@ import com.badlogic.gdx.utils.Align;
 import android.media.AudioRecord;
 
 public class MainFrame extends ApplicationAdapter implements ClientUI {
+	private AndroidApplication app;
 	Skin skin;
 	Table tableMain;
 	Table subtable;
@@ -35,6 +37,10 @@ public class MainFrame extends ApplicationAdapter implements ClientUI {
 	TextButton searchDevices;
 	CheckBox connectionMethodWlan;
 	CheckBox connectionMethodBluetooth;
+
+	public MainFrame(AndroidLauncher androidLauncher) {
+		this.app = androidLauncher;
+	}
 
 	@Override
 	public void create() {
@@ -68,7 +74,7 @@ public class MainFrame extends ApplicationAdapter implements ClientUI {
 		subtable.add(connectionMethodBluetooth);
 		subtable.add(connectionMethodWlan);
 		
-
+		new WlanClient(app);
 	}
 
 	private TextButtonStyle inittextButtonStyle(){
