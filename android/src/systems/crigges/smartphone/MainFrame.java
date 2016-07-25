@@ -21,6 +21,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.List;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.utils.Align;
 
 import android.media.AudioRecord;
@@ -49,26 +50,34 @@ public class MainFrame extends ApplicationAdapter implements ClientUI {
 		connectionMethodWlan = new CheckBox("Use Wireless Lan", skin);
 		connectionMethodBluetooth = new CheckBox("Use Bluetooth", skin);
 		log = new Label("Log initilised", skin);
+		ScrollPane pane = new ScrollPane(log);
 		
 		stage.addActor(tableMain);
 		stage.addActor(subtable);
 		
 		tableMain.setFillParent(true);
 		Label title = new Label("MicroPHONE", skin);
+		title.setHeight(tableMain.getHeight() / 5);
+		title.setWidth(tableMain.getWidth());
 		tableMain.add(title).expand().fill().align(Align.top);
 		title.setAlignment(Align.center);
 		tableMain.row();
 		tableMain.add(subtable);
 		tableMain.row();
-		tableMain.add(log).fill().expand().align(Align.bottomRight);
+		tableMain.add(pane).fill().expand().align(Align.bottomRight);
 		tableMain.add(deviceList).fill().expand().align(Align.bottomLeft);
 		
 		subtable.add(searchDevices);
 		subtable.row();
 		subtable.add(connectionMethodBluetooth);
 		subtable.add(connectionMethodWlan);
-		
-
+//		BitmapFont font;
+//
+//		font = new BitmapFont();
+//
+//		font.scale((ppuX*0.02f));
+//
+//		font.draw(spb, "Score:", width/2-ppuX*2f, height-0.5f*ppuY);
 	}
 
 	private TextButtonStyle inittextButtonStyle(){
@@ -81,9 +90,10 @@ public class MainFrame extends ApplicationAdapter implements ClientUI {
         skin.addRegions(buttonAtlas);
         return textButtonStyle;
 	}
+	
 	@Override
 	public void render() {
-		Gdx.gl.glClearColor(1, 0, 0, 1);
+		Gdx.gl.glClearColor(0, 0, 0, 0);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		stage.act();
 		stage.draw();
