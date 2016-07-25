@@ -12,7 +12,7 @@ public class AndroidLauncher extends AndroidApplication {
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
 		//new ConnectTest(this);
 		//newMainFrame(this)
-		initialize(new MainFrame(), config);
+		initialize(new MainFrame(this), config);
 		
 	}
 }
