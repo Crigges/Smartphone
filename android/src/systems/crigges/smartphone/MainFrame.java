@@ -4,6 +4,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.AudioRecorder;
 import com.badlogic.gdx.backends.android.AndroidApplication;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -13,15 +14,20 @@ import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
+import com.badlogic.gdx.scenes.scene2d.ui.Value;
+import com.badlogic.gdx.scenes.scene2d.ui.CheckBox.CheckBoxStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.List;
+import com.badlogic.gdx.scenes.scene2d.ui.List.ListStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.utils.Align;
 
@@ -45,15 +51,28 @@ public class MainFrame extends ApplicationAdapter implements ClientUI {
 
 	@Override
 	public void create() {
+		stage = new Stage();
 		Gdx.input.setInputProcessor(stage);
+		SmartFontGenerator fontGen = new SmartFontGenerator();
 		skin = new Skin(Gdx.files.internal("uiskin.json"));
+		FileHandle exoFile = Gdx.files.internal("LiberationMono-Regular.ttf");
+		BitmapFont fontMedium = fontGen.createFont(exoFile, "exo-medium", 40);
+		Label.LabelStyle mediumStyle = new Label.LabelStyle();
+		mediumStyle.font = fontMedium;
+		BitmapFont fontSmall = fontGen.createFont(exoFile, "exo-small", 24);
+		Label.LabelStyle smallStyle = new Label.LabelStyle();
+		smallStyle.font = fontSmall;
+		skin.get("default", TextButtonStyle.class).font = fontSmall;
+		skin.get("default", CheckBoxStyle.class).font = fontSmall;
+		skin.get("default", LabelStyle.class).font = fontSmall;
+		skin.get("default", ListStyle.class).font = fontSmall;
+		
 		tableMain = new Table();
 		subtable = new Table();
 		deviceList = new List<String>(skin);
-		searchDevices = new TextButton("Search Devices", inittextButtonStyle());
+		searchDevices = new TextButton("Search Devices", skin);
 		deviceList.setItems("one", "two", "three", "four");
-		stage = new Stage();
-		connectionMethodWlan = new CheckBox("Use Wireless Lan", skin);
+		connectionMethodWlan = new CheckBox("Use Wirless LAN", skin);
 		connectionMethodBluetooth = new CheckBox("Use Bluetooth", skin);
 		log = new Label("Log initilised", skin);
 		ScrollPane pane = new ScrollPane(log);
@@ -62,21 +81,22 @@ public class MainFrame extends ApplicationAdapter implements ClientUI {
 		stage.addActor(subtable);
 		
 		tableMain.setFillParent(true);
-		Label title = new Label("MicroPHONE", skin);
-		title.setHeight(tableMain.getHeight() / 5);
-		title.setWidth(tableMain.getWidth());
-		tableMain.add(title).expand().fill().align(Align.top);
-		title.setAlignment(Align.center);
+		Label title = new Label("MicroPHONE", mediumStyle);
+		tableMain.add(title).expandX().fillX().center().spaceBottom(Value.percentHeight(2f));
 		tableMain.row();
-		tableMain.add(subtable);
+		tableMain.add(connectionMethodBluetooth).left();
+		tableMain.add(connectionMethodWlan).right();
 		tableMain.row();
-		tableMain.add(pane).fill().expand().align(Align.bottomRight);
-		tableMain.add(deviceList).fill().expand().align(Align.bottomLeft);
+		tableMain.add(searchDevices).expandX().space(Value.percentHeight(2.5f));
+		tableMain.row();
+		tableMain.add(pane).bottom().left().expand().fill();
+		tableMain.add(subtable).bottom().right().expand().fill();
 		
-		subtable.add(searchDevices);
+		subtable.add(new Label("Devices", smallStyle));
 		subtable.row();
-		subtable.add(connectionMethodBluetooth);
-		subtable.add(connectionMethodWlan);
+		subtable.add(deviceList).fill().expand();
+		
+		
 		new WlanClient(app);
 	}
 
