@@ -97,7 +97,7 @@ public class MainFrame extends ApplicationAdapter implements ClientUI {
 		subtable.add(deviceList).fill().expand();
 		
 		
-		new WlanClient(app);
+		//new WlanClient(app);
 	}
 
 	private TextButtonStyle inittextButtonStyle(){

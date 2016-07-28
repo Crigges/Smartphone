@@ -20,9 +20,12 @@ public class WlanClient implements Client {
 
 	private AndroidApplication app;
 	private ExecutorService subnetScanPool;
+	private ClientUI ui;
 
-	public WlanClient(AndroidApplication app) {
+	public WlanClient(AndroidApplication app, ClientUI ui) {
 		this.app = app;
+		this.ui = ui;
+		ui.log("Retrieving ip address...");
 		String clientIP = getWifiIpAddress();
 		subnetScanPool = Executors.newCachedThreadPool();
 		String subnet = clientIP.substring(0, clientIP.lastIndexOf('.'));
