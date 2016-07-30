@@ -15,12 +15,18 @@ import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
+import com.badlogic.gdx.scenes.scene2d.ui.List;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider.SliderStyle;
+import com.badlogic.gdx.scenes.scene2d.ui.CheckBox.CheckBoxStyle;
+import com.badlogic.gdx.scenes.scene2d.ui.List.ListStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+
+import android.widget.ToggleButton;
 
 public class AssetFactory {
 	private static Map<String, Texture> textures = new HashMap<String, Texture>();
@@ -30,6 +36,10 @@ public class AssetFactory {
 	private static Map<String, Sound> sounds = new HashMap<String, Sound>();
 	private static TextButtonStyle defaultTextButtonStyle;
 	private static TextFieldStyle defaultTextFieldStyle;
+	private static ListStyle defaultListStyle;
+	private static CheckBoxStyle defaultCheckBoxStyle;
+	private static CheckBoxStyle micMuteBoxStyle;
+	private static SliderStyle defaultSliderStyle;
 	private static float viewportWidth;
 	private static float viewportHeight;
 		
@@ -40,10 +50,92 @@ public class AssetFactory {
 		addTexture("button_pressed", "button_pressed.png");
 		addTexture("button_focus", "button_focus.png");
 		addTexture("textarea", "textarea.png");
-		
+		addTexture("text_focus", "text_focused.png");
+		addTexture("list_background", "list_background.png");
+		addTexture("checkbox_on", "checkbox_on.png");
+		addTexture("checkbox_off", "checkbox_off.png");
+		addTexture("mic_on", "mic_on.png");
+		addTexture("mic_off", "mic_off.png");
+		addTexture("slider_knob", "scrubber_knob.png");
+		addTexture("slider_before", "scrubber_primary.png");
+		addTexture("slider_after", "scrubber_secondary.png");
+		addTexture("slider_bg", "scrubber_track.png");
 		
 		defaultTextButtonStyle = genDefaultButtonStyle();
 		defaultTextFieldStyle = genDefaultTextFieldStyle();
+		defaultListStyle = genDefaultListStyle();
+		defaultCheckBoxStyle = genDefaultCheckBoxStyle();
+		micMuteBoxStyle = genMicMuteBoxStyle();
+		defaultSliderStyle = genDefaultSliderStyle();
+	}
+	
+	private static SliderStyle genDefaultSliderStyle(){
+		SliderStyle style = new SliderStyle();
+		style.knob = new TextureRegionDrawable(new TextureRegion(getTexture("slider_knob")));
+		style.knob.setMinHeight(100);
+		style.knob.setMinWidth(100);
+		NinePatch p = new NinePatch(getTexture("slider_before"), 10, 10, 10, 10);
+		style.knobBefore = new NinePatchDrawable(p);
+		style.knobBefore.setMinHeight(40);
+		p = new NinePatch(getTexture("slider_after"), 10, 10, 0, 0);
+		style.background = new NinePatchDrawable(p);
+		style.background.setRightWidth(-50);
+		style.background.setMinHeight(50);
+		style.background.setLeftWidth(-50);
+//		p = new NinePatch(getTexture("slider_bg"), 10, 10, 0, 0);
+//		style.background = new NinePatchDrawable(p);
+//		style.background.setMinHeight(110);
+		return style;
+	}	
+	
+	public static SliderStyle getDefaultSliderStyle() {
+		return defaultSliderStyle;
+	}
+	
+	public static CheckBoxStyle getMicMuteBoxStyle() {
+		return micMuteBoxStyle;
+	}
+	
+	private static CheckBoxStyle genMicMuteBoxStyle(){
+		CheckBoxStyle style = new CheckBoxStyle();
+		style.checkboxOn = new TextureRegionDrawable(new TextureRegion(getTexture("mic_off")));
+		style.checkboxOff = new TextureRegionDrawable(new TextureRegion(getTexture("mic_on")));
+		style.font = getFont("normal", 60);
+		style.fontColor = Color.WHITE;
+		style.checkedFontColor = Color.WHITE;
+		return style;
+	}	
+	
+	private static CheckBoxStyle genDefaultCheckBoxStyle(){
+		CheckBoxStyle style = new CheckBoxStyle();
+		NinePatch p = new NinePatch(getTexture("checkbox_on"), 10, 10, 10, 10);
+		style.checkboxOn = new NinePatchDrawable(p);
+		p = new NinePatch(getTexture("checkbox_off"), 10, 10, 10, 10);
+		style.checkboxOff = new NinePatchDrawable(p);
+		style.font = getFont("normal", 60);
+		style.fontColor = Color.WHITE;
+		style.checkedFontColor = Color.WHITE;
+		return style;
+	}
+	
+	public static CheckBoxStyle getDefaultCheckBoxStyle() {
+		return defaultCheckBoxStyle;
+	}
+	
+	public static ListStyle getDefaultListStyle() {
+		return defaultListStyle;
+	}
+
+	private static ListStyle genDefaultListStyle(){
+		ListStyle style = new ListStyle();
+		NinePatch p = new NinePatch(getTexture("list_background"), 10, 10, 10, 10);
+		style.background = new NinePatchDrawable(p);
+		p = new NinePatch(getTexture("textarea"), 10, 10, 10, 10);
+		style.selection = new NinePatchDrawable(p);
+		style.fontColorSelected = Color.WHITE;
+		style.fontColorUnselected = Color.WHITE;
+		style.font = getFont("normal", 40);
+		return style;
 	}
 	
 	public static TextButtonStyle getDefaultButtonStyle(){
@@ -62,7 +154,7 @@ public class AssetFactory {
 		style.down = new NinePatchDrawable(p);
 		p = new NinePatch(getTexture("button_focus"), 10, 10, 10, 10);
 		style.over = new NinePatchDrawable(p);
-		BitmapFont font = getFont("normal", 80);
+		BitmapFont font = getFont("normal", 60);
 		style.font = font;
 		return style;
 	}
