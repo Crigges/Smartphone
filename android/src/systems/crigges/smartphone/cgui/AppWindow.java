@@ -10,6 +10,7 @@ import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
@@ -20,13 +21,17 @@ import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.List;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import systems.crigges.smartphone.AndroidLauncher;
+import systems.crigges.smartphone.BluetoothClient;
 import systems.crigges.smartphone.Client;
 import systems.crigges.smartphone.ClientUI;
 import systems.crigges.smartphone.Status;
+import systems.crigges.smartphone.WlanClient;
 import systems.crigges.smartphone.util.AssetFactory;
 import systems.crigges.smartphone.util.Bounds;
 
@@ -39,13 +44,14 @@ public class AppWindow extends ApplicationAdapter implements ClientUI {
 	private static final Bounds bluetoothBoxBounds = new Bounds(80, 1540, 400, 100);
 	private static final Bounds wlanBoxBounds = new Bounds(610, 1540, 400, 100);
 	private static final Bounds serverListLabelBounds = new Bounds(55, 1420, 200, 100);
-	private static final Bounds serverListBounds = new Bounds(40, 920, 1000, 500);
-	private static final Bounds connectButtonBounds = new Bounds(545, 780, 500, 125);
-	private static final Bounds disconnectButtonBounds = new Bounds(35, 780, 500, 125);
+	private static final Bounds serverListBounds = new Bounds(40, 870, 1000, 550);
+	private static final Bounds connectButtonBounds = new Bounds(545, 730, 500, 125);
+	private static final Bounds disconnectButtonBounds = new Bounds(35, 730, 500, 125);
+	private static final Bounds statusLabelBounds = new Bounds(50, 580, 600, 125);
 	private static final Bounds volumeSliderBounds = new Bounds(50, 500, 600, 125);
-	private static final Bounds muteBoxBounds = new Bounds(600, 500, 500, 125);
-	private static final Bounds logBounds = new Bounds(40, 30, 1000, 350);
-	private static final Bounds logLabelBounds = new Bounds(55, 380, 200, 400);
+	private static final Bounds muteBoxBounds = new Bounds(885, 520, 125, 125);
+	private static final Bounds logBounds = new Bounds(40, 30, 1000, 400);
+	private static final Bounds logLabelBounds = new Bounds(55, 435, 200, 400);
 
 
 
@@ -65,6 +71,7 @@ public class AppWindow extends ApplicationAdapter implements ClientUI {
 	private CheckBox wlanBox;
 	private CheckBox muteBox;
 	private Slider volumeSlider;
+	private Label statusLabel;
 
 	public AppWindow(AndroidLauncher androidLauncher) {
 		this.app = androidLauncher;
@@ -83,18 +90,20 @@ public class AppWindow extends ApplicationAdapter implements ClientUI {
 		viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		System.out.println("Height: " + Gdx.graphics.getHeight() + "    ||    Width: " + Gdx.graphics.getWidth());
 		initTitleLabel();
-		initVolumeSlider();
+		initStatusLabel();
 		initMuteBox();
 		initCheckBoxes();
 		initButtons();
 		initLog();
 		initServerList();
 		log("Log initalized.");
-		log("This are sample log messages");
-		log("This are sample log messages");
-		log("This are sample log messages");
-		log("This are sample log messages");
 		Gdx.input.setInputProcessor(stage);
+	}
+
+	private void initStatusLabel() {
+		statusLabel = new Label("Select Connection Method", new LabelStyle(AssetFactory.getFont("normal", 60), Color.CYAN));
+		statusLabelBounds.applyToActor(statusLabel);
+		stage.addActor(statusLabel);
 	}
 
 	private void initVolumeSlider() {
@@ -115,11 +124,38 @@ public class AppWindow extends ApplicationAdapter implements ClientUI {
 		bluetoothBox = new CheckBox("Use Bluetooth", AssetFactory.getDefaultCheckBoxStyle());
 		bluetoothBoxBounds.applyToActor(bluetoothBox);
 		bluetoothBox.getCells().get(0).size(100, 100);
+		bluetoothBox.addListener(new CheckboxInputHandler());
 		stage.addActor(bluetoothBox);
 		wlanBox = new CheckBox("Use Wlan", AssetFactory.getDefaultCheckBoxStyle());
 		wlanBoxBounds.applyToActor(wlanBox);
 		wlanBox.getCells().get(0).size(100, 100);
+		wlanBox.addListener(new CheckboxInputHandler());
 		stage.addActor(wlanBox);
+	}
+	
+	class CheckboxInputHandler extends ChangeListener{
+
+		@Override
+		public void changed(ChangeEvent event, Actor actor) {
+			if(bluetoothBox.isChecked() && wlanBox.isChecked()){
+				client.stopClient();
+				//check which client should be used now
+				if(client instanceof WlanClient){
+					client = new BluetoothClient(app, AppWindow.this);
+					wlanBox.setChecked(false);
+				}else{
+					client = new WlanClient(app, AppWindow.this);
+					bluetoothBox.setChecked(false);
+				}
+			}else if(bluetoothBox.isChecked()){
+				client = new BluetoothClient(app, AppWindow.this);
+			}else if(wlanBox.isChecked()){
+				client = new WlanClient(app, AppWindow.this);
+			}else{
+				client.stopClient();
+			}
+		}
+		
 	}
 
 	private void initTitleLabel() {
@@ -191,12 +227,6 @@ public class AppWindow extends ApplicationAdapter implements ClientUI {
 	}
 
 	@Override
-	public void setAdapterAvailable(boolean available) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void showAvailableServers(java.util.List<String> names, java.util.List<String> address) {
 		// TODO Auto-generated method stub
 		
@@ -204,7 +234,26 @@ public class AppWindow extends ApplicationAdapter implements ClientUI {
 
 	@Override
 	public void setStatus(Status s) {
-		// TODO Auto-generated method stub
-		
+		switch (s) {
+		case Connecting:
+			statusLabel.setText("Connecting...");
+			break;
+		case Pending:
+			statusLabel.setText("Select Connection Method");
+			bluetoothBox.setChecked(false);
+			wlanBox.setChecked(false);
+			break;
+		case ReadyConnect:
+			statusLabel.setText("Select a Server");
+			break;
+		case Running:
+			statusLabel.setText("Streaming audio data");
+			break;
+		case Searching:
+			statusLabel.setText("Scanning for Servers...");
+			break;
+		default:
+			break;
+		}
 	}
 }

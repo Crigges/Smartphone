@@ -72,16 +72,10 @@ public class AssetFactory {
 	private static SliderStyle genDefaultSliderStyle(){
 		SliderStyle style = new SliderStyle();
 		style.knob = new TextureRegionDrawable(new TextureRegion(getTexture("slider_knob")));
-		style.knob.setMinHeight(100);
-		style.knob.setMinWidth(100);
 		NinePatch p = new NinePatch(getTexture("slider_before"), 10, 10, 10, 10);
 		style.knobBefore = new NinePatchDrawable(p);
-		style.knobBefore.setMinHeight(40);
 		p = new NinePatch(getTexture("slider_after"), 10, 10, 0, 0);
 		style.background = new NinePatchDrawable(p);
-		style.background.setRightWidth(-50);
-		style.background.setMinHeight(50);
-		style.background.setLeftWidth(-50);
 //		p = new NinePatch(getTexture("slider_bg"), 10, 10, 0, 0);
 //		style.background = new NinePatchDrawable(p);
 //		style.background.setMinHeight(110);

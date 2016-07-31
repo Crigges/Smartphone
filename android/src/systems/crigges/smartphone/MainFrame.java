@@ -137,12 +137,6 @@ public class MainFrame extends ApplicationAdapter implements ClientUI {
 	}
 
 	@Override
-	public void setAdapterAvailable(boolean available) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void showAvailableServers(java.util.List<String> names, java.util.List<String> address) {
 		// TODO Auto-generated method stub
 		

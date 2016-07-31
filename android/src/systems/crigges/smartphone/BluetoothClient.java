@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.LifecycleListener;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
@@ -44,17 +45,33 @@ public class BluetoothClient implements Client {
 			if (btAdapter.isEnabled()) {
 				ui.log("Initialisation successful.");
 			} else {
-				ui.log("Adapter is diabeld, requesting to enable it");
+				ui.log("Adapter is diabeld, requesting to enable it...");
 				Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 				app.startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-				if (btAdapter.isEnabled()) {
-					ui.log("Initialisation successful.");
-				} else {
-					ui.log("Failed to initalize, couldn't enable adapter. Try it manualy.");
-					ui.setStatus(Status.Pending);
-				}
+				Gdx.app.addLifecycleListener(new AfterIntentFinish());
 			}
 		}
+	}
+	
+	class AfterIntentFinish implements LifecycleListener{
+
+		@Override
+		public void pause() {}
+
+		@Override
+		public void resume() {
+			if (btAdapter.isEnabled()) {
+				ui.log("Initialisation successful.");
+			} else {
+				ui.log("Failed to initalize, couldn't enable adapter. Try it manualy.");
+				ui.setStatus(Status.Pending);
+			}
+			Gdx.app.removeLifecycleListener(this);
+		}
+
+		@Override
+		public void dispose() {}
+		
 	}
 
 	@Override
@@ -117,7 +134,8 @@ public class BluetoothClient implements Client {
 			ui.log("Stopped Client");
 		} catch (IOException e) {
 			ui.log("Failed to stop Client:\n" + e.getMessage());
-			ui.setStatus(Status.ReadyForSearch);
+			//ui.setStatus(Status.ReadyForSearch);
+			//TODO
 		}
 	}
 

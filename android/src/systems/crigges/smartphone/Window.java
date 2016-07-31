@@ -17,12 +17,6 @@ public class Window implements ClientUI {
 	}
 
 	@Override
-	public void setAdapterAvailable(boolean available) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void showAvailableServers(List<String> names, List<String> address) {
 		// TODO Auto-generated method stub
 
